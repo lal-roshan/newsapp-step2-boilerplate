@@ -1,24 +1,58 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using News_WebApp.Models;
 using News_WebApp.Repository;
+
 namespace News_WebApp.Controllers
 {
+    /// <summary>
+    /// Controller class for Login purpose
+    /// </summary>
     public class LoginController : Controller
     {
-        /* 
-         * Retrieve the UserRepository object from the dependency Container through constructor Injection.
-        */
+        /// <summary>
+        /// User repository property for accessing operations on user model
+        /// </summary>
+        readonly IUserRepository userRepository;
 
-        /*Call The Index Action to display default view
-         
-        */
+        /// <summary>
+        /// Parametrized constructor for injecting the user repository property
+        /// </summary>
+        /// <param name="userRepository">The userRepository object to be injected</param>
+        public LoginController(IUserRepository userRepository)
+        {
+            this.userRepository = userRepository;
+        }
+
+        /// <summary>
+        /// Default action for showing default view
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult Index()
+        {
+            return View();
+        }
        
-        /*Use a Httpverb i.e POST for action i.e Index which acccepts User Object as a parameter
-         * check the user credentials true or false. 
-         * If user credentials are true store the userid in temporary storage and redirect the action to News controller and default Index view
-         * If user creadentials are false display an error message(AddModelError) i.e Invalid User Id and Password
-         */
-        
+        /// <summary>
+        /// The action for performing login operation
+        /// </summary>
+        /// <param name="user">The user properties who is trying to login</param>
+        /// <returns></returns>
+        [HttpPost]
+        public IActionResult Index(User user)
+        {
+            if (ModelState.IsValid)
+            {
+                if (userRepository.IsAuthenticated(user.UserId, user.Password))
+                {
+                    TempData["uId"] = user.UserId;
+                    return RedirectToAction("Index", "News");
+                }
+                else
+                {
+                    ModelState.AddModelError("IncorrectData", "Invalid User Id or Password");
+                }
+            }
+            return View(user);
+        }
     }
 }

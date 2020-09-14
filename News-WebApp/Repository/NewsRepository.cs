@@ -1,42 +1,107 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using News_WebApp.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 namespace News_WebApp.Repository
 {
-    /*
-     This class contains the code for data storage interactions and methods 
-     of this class will be used by other parts of the applications such
-     as Controllers and Test Cases
-     */
-    public class NewsRepository
+    /// <summary>
+    /// Class containing implementations of CRUD operation on news table
+    /// </summary>
+    public class NewsRepository: INewsRepository
     {
-        /* Declare a variable of NewsDbContext type to store 
-         * all the news
-        */
+        /// <summary>
+        /// an object of dbcontext
+        /// </summary>
+        private NewsDbContext context;
 
-        /*
-	        This method should accept News object as argument and add the new news object in
-            NewsDbContext Object
-	    */
+        /// <summary>
+        /// Constructor for injecting the dbcontext property
+        /// </summary>
+        /// <param name="context"></param>
+        public NewsRepository(NewsDbContext context)
+        {
+            this.context = context;
+        }
 
-        /*
-        Use Async and await calls for AddNews(),GetAllNews(),GetNewsById() and RemoveNews()
-        */
+        /// <summary>
+        /// Method for adding news
+        /// </summary>
+        /// <param name="news">The news object that is to be added</param>
+        /// <returns>The added news if success else null</returns>
+        public async Task<News> AddNews(News news)
+        {
+            try
+            {
+                await context.NewsList.AddAsync(news);
+                if(await context.SaveChangesAsync() > 0)
+                {
+                    return news;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
+        /// <summary>
+        /// Method to get all news created by a user
+        /// </summary>
+        /// <param name="userId">the id of user whose news are to be fetched</param>
+        /// <returns>List of all news created by the user</returns>
+        public async Task<List<News>> GetAllNews(string userId)
+        {
+            try
+            {
+                return await context.NewsList.Where(n => string.Equals(n.UserId, userId)).ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-        /* Implement all the methods of respective interface asynchronously*/
-        /* Implement AddNews method should accept News object as argument and add the new news object into 
-              NewsDbContext Object*/
+        /// <summary>
+        /// Get the details of a specific news
+        /// </summary>
+        /// <param name="newsId">Id of the news whose details is to be fetched</param>
+        /// <returns>News object corresponding to the id provided</returns>
+        public async Task<News> GetNewsById(int newsId)
+        {
+            try
+            {
+                return await context.NewsList.Where(n => n.NewsId == newsId).FirstOrDefaultAsync();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
-        /* Implement GetAllNews method should return all the news available in the the NewsDbContext Object*/
-
-        /* Implement GetNewsById method should return the matching newsid details present in the 
-         * the NewsDbContext Object*/
-
-        /* Implement IsNewsExist method to check the news deatils exist or not*/
-
-        /* Implement RemoveNews method should delete a specified news from the NewsDbContext Object*/
+        /// <summary>
+        /// Method to delete a news
+        /// </summary>
+        /// <param name="newsId">id of the news to be deleted</param>
+        /// <returns>true if deleted successfuly else false</returns>
+        public async Task<bool> RemoveNews(int newsId)
+        {
+            try
+            {
+                News news = await context.NewsList.Where(n => n.NewsId == newsId).FirstOrDefaultAsync();
+                if(news != null)
+                {
+                    context.NewsList.Remove(news);
+                    return await context.SaveChangesAsync() > 0;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

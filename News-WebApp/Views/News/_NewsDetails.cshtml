@@ -1,0 +1,47 @@
+﻿@model News_WebApp.Models.News
+
+
+<hr />
+<div>
+    <h4>
+        @Html.DisplayNameFor(model => model.NewsId)
+    </h4>
+    <p>
+        @Html.DisplayFor(model => model.NewsId)
+    </p>
+
+    <h4>
+        @Html.DisplayNameFor(model => model.Title)
+    </h4>
+    <p>
+        @Html.DisplayFor(model => model.Title)
+    </p>
+
+    <h4>
+        @Html.DisplayNameFor(model => model.Content)
+    </h4>
+    <p>
+        @Html.DisplayFor(model => model.Content)
+    </p>
+
+    <h4>
+        @Html.DisplayNameFor(model => model.PublishedAt)
+    </h4>
+    <p>
+        @Html.DisplayFor(model => model.PublishedAt)
+    </p>
+
+    <h4>
+        @Html.DisplayNameFor(model => model.UrlToImage)
+    </h4>
+    @if (Model.UrlToImage != null)
+    {
+        <p>
+            <img class="img-fluid" src="@Url.Content(Model.UrlToImage)" alt="Image" width="460" height="350" />
+        </p>
+    }
+    else
+    {
+        <p>No Image Available</p>
+    }
+</div>

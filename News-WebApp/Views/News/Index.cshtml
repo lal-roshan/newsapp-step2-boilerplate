@@ -1,0 +1,54 @@
+﻿@model News_WebApp.Models.News
+@{
+    ViewData["Title"] = "News";
+}
+
+<h1>News</h1>
+<hr />
+<p class="float-right">
+    <a asp-action="LogOut">Log Out</a>
+</p>
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Index" enctype="multipart/form-data">
+            <div asp-validation-summary="All" class="text-danger">
+                <p class="text-danger">@Html.ValidationMessage("IncorrectData")</p>
+            </div>
+            <div class="form-group">
+                <label asp-for="Title" class="control-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Content" class="control-label"></label>
+                <input asp-for="Content" class="form-control" />
+                <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PublishedAt" class="control-label"></label>
+                <input type="datetime-local" asp-for="PublishedAt" class="form-control" />
+                <span asp-validation-for="PublishedAt" class="text-danger"></span>
+            </div>
+            <input type="hidden" asp-for="UserId" value="@TempData["uId"]"/>
+            <div class="form-group">
+                <label class="control-label">Select an image to upload</label>
+                <input type="file" name="UrlToImage" class="form-control" />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Add News" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<hr />
+<h4>All News</h4>
+<hr />
+@{ 
+    await Html.RenderPartialAsync("_NewsList.cshtml", ViewData["newsList"]);
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

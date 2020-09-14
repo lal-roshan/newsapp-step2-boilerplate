@@ -1,0 +1,14 @@
+﻿@model News_WebApp.Models.News
+@{
+    ViewData["Title"] = "News";
+    TempData["uId"] = Model.UserId;
+}
+
+<h1>News</h1>
+<hr />
+<p>
+    <a class="small" asp-action="GoBack">Go Back</a>
+</p>
+@{
+    await Html.RenderPartialAsync("_NewsDetails.cshtml", Model);
+}

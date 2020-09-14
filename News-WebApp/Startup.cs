@@ -17,13 +17,20 @@ namespace News_WebApp
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        /// This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //provide options for DbContext 
-            //Note:Add ConnectionStrings key in appsettings.json and use Connectionstring name here
+            ///provide options for DbContext 
+            ///Note:Add ConnectionStrings key in appsettings.json and use Connectionstring name here
+            services.AddDbContext<NewsDbContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("NewsDbCon"));
+            });
 
-            //Register all dependencies required for this Project
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<INewsRepository, NewsRepository>();
+
+            ///Register all dependencies required for this Project
             services.AddControllersWithViews();
           
         }

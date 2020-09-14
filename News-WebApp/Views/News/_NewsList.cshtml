@@ -1,0 +1,52 @@
+﻿@model IEnumerable<News_WebApp.Models.News>
+
+@{ 
+    if (Model.Any())
+    {
+        TempData["uId"] = Model.First().UserId;
+    }
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.NewsId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UrlToImage)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NewsId)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-newsId="@item.NewsId">
+                        @Html.DisplayFor(modelItem => item.Title)
+                    </a>
+                </td>
+                <td>
+                    @if (item.UrlToImage != null)
+                    {
+                        <img src="@Url.Content(item.UrlToImage)" alt="Image" />
+                    }
+                    else
+                    {
+                        <p>Image Not Available</p>
+                    }
+                </td>
+                <td>
+                    <a asp-action="Delete" asp-route-newsId="@item.NewsId">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

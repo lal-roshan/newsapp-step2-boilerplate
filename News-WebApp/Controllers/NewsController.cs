@@ -1,43 +1,122 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using News_WebApp.Models;
 using News_WebApp.Repository;
-using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 namespace News_WebApp.Controllers
 {
+    /// <summary>
+    /// Controller for handling news related operations
+    /// </summary>
     public class NewsController : Controller
     {
-        /*
-         * From the problem statement, we can understand that the application
-         * requires us to implement the following functionalities.
-         * 
-         * 1. Display the list of existing news from the collection. Each news 
-         *    should contain NewsId, title, content,PublishedAt and UrlToImage.
-         * 2. Add a new news which should contain the Newsid, title, content and PublishedAt
-         *    and UrlToImage(to upload an Image).
-         *    Note:uploaded image strore it in wwwroot/images folder
-         *    
-         * 3. Delete an existing News.
-     */
+        /// <summary>
+        /// news repository property for accessing operations on news model
+        /// </summary>
+        readonly INewsRepository newsRepository;
+        
+        /// <summary>
+        /// Paramterised constructor for injecting news repository property
+        /// </summary>
+        /// <param name="newsRepository">The news repository object to be injected</param>
+        public NewsController(INewsRepository newsRepository)
+        {
+            this.newsRepository = newsRepository;
+        }
 
-        /* 
-         * Retrieve the NewsRepository object from the dependency Container through constructor Injection.
-         */
+        /// <summary>
+        /// Default action for news controller
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            ViewData["newsList"] = await newsRepository.GetAllNews(TempData["uId"]?.ToString());
+            return View();
+        }
 
+        /// <summary>
+        /// Action for adding news
+        /// </summary>
+        /// <param name="news">The object containing the new news details</param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> Index(News news)
+        {
+            string prevUserId = news.UserId;
+            string filepath = string.Empty;
+            if (ModelState.IsValid)
+            {
+                if (Request?.Form?.Files?.Any() ?? false)
+                {
+                    filepath = Path.GetFullPath("wwwroot/images/");
+                    if (!Directory.Exists(filepath))
+                    {
+                        Directory.CreateDirectory(filepath);
+                    }
+                    filepath = Path.Combine(filepath, Request.Form.Files.First().FileName);
+                    if (System.IO.File.Exists(filepath))
+                    {
+                        System.IO.File.Delete(filepath);
+                    }
+                    using (var stream = System.IO.File.Create(filepath))
+                    {
+                        await Request.Form.Files.First().CopyToAsync(stream);
+                    }
+                    news.UrlToImage = filepath;
+                }
+                news = await newsRepository.AddNews(news);
+            }
+            if (news == null)
+            {
+                if (!string.IsNullOrEmpty(filepath))
+                {
+                    if (System.IO.File.Exists(filepath))
+                    {
+                        System.IO.File.Delete(filepath);
+                    }
+                }
+                ModelState.AddModelError("OperationFailed", "Something went wrong while adding the news!!!");
+            }
+            TempData["uId"] = prevUserId;
+            return RedirectToAction("Index");
+        }
 
-        /*Define a handler method to read the existing News by calling the GetNews() method 
-         * of the NewsRepository class and pass to view. it should map to the default URL i.e. "/" */
+        /// <summary>
+        /// Action method which accepts a newsId and shows the details of the specified news
+        /// </summary>
+        /// <param name="newsId">News id of the news details to be shown</param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IActionResult> Details(int newsId)
+        {
+            News news = await newsRepository.GetNewsById(newsId);
+            return View(news);
+        }
 
+        /// <summary>
+        /// Action method for deleting a news
+        /// </summary>
+        /// <param name="newsId">Id of the news to be deleted</param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IActionResult> Delete(int newsId)
+        {
+            if (ModelState.IsValid)
+            {
+                await newsRepository.RemoveNews(newsId);
+            }
+            return RedirectToAction("Index");
+        }
 
-        /*Define a handler method which will accept newsid as a parameter 
-         * and return the available news details of the newsid by calling the GetNewsById() of News
-         * Repository class
-        */
-
-
-        /* Define a handler method to delete an existing News by calling the RemoveNews() method 
-         * of the NewsRepository class
-        */
+        /// <summary>
+        /// Action method for going back to the main page from details page
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult GoBack()
+        {
+            return RedirectToAction("Index");
+        }
     }
 }
