@@ -64,7 +64,7 @@ namespace News_WebApp.Controllers
                     {
                         await Request.Form.Files.First().CopyToAsync(stream);
                     }
-                    news.UrlToImage = filepath;
+                    news.UrlToImage = Request.Form.Files.First().FileName;
                 }
                 news = await newsRepository.AddNews(news);
             }

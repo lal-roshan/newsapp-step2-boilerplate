@@ -36,9 +36,9 @@
     </h4>
     @if (Model.UrlToImage != null)
     {
-        <p>
-            <img class="img-fluid" src="@Url.Content(Model.UrlToImage)" alt="Image" width="460" height="350" />
-        </p>
+<p>
+    <img class="img-fluid" src="@Url.Content("~/wwwroot/images/" + @Model.UrlToImage)" alt="@Model.Title" width="460" height="350" />
+</p>
     }
     else
     {

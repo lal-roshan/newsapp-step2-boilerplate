@@ -36,7 +36,7 @@
                 <td>
                     @if (item.UrlToImage != null)
                     {
-                        <img src="@Url.Content(item.UrlToImage)" alt="Image" />
+                        <img src="@Url.Content("~/wwwroot/images/" + item.UrlToImage)" alt="@item.Title" width="460" height="350"/>
                     }
                     else
                     {
